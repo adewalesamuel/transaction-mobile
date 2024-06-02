@@ -5,114 +5,62 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, {createContext, useState} from 'react';
+import LoginView from './interface/views/LoginView';
+import UserCreateView from './interface/views/RegisterView';
+import TransactionListView from './interface/views/TransactionListView';
+import TransactionEditView from './interface/views/TransactionEditView';
+import {UserEntity} from './core/domain/entities/UserEntity';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+const Stack = createNativeStackNavigator();
+export const AppContext = createContext({
+  user: {},
+  setUser: (_user: UserEntity) => {
+    return;
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  isLoggedIn: false,
+  setIsLoggedIn: (_bool: boolean) => {
+    return;
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  sessionToken: '',
+  setSessionToken: (_token: string) => {
+    return;
   },
 });
+
+function App(): React.JSX.Element {
+  const [user, setUser] = useState({});
+  const [sessionToken, setSessionToken] = useState<string>('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  return (
+    <AppContext.Provider
+      value={{
+        user,
+        setUser,
+        sessionToken,
+        setSessionToken,
+        isLoggedIn,
+        setIsLoggedIn,
+      }}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Register">
+          <Stack.Screen name="Register" component={UserCreateView} />
+          <Stack.Screen name="Login" component={LoginView} />
+          <Stack.Screen
+            name="TransactionList"
+            component={TransactionListView}
+          />
+          <Stack.Screen
+            name="TransactionEdit"
+            component={TransactionEditView}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppContext.Provider>
+  );
+}
 
 export default App;
